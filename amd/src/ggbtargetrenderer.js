@@ -46,7 +46,7 @@ export const init = (targetSelector, appletId, deployGgbUrl, ggbParams) => {
     }
 
     const renderContext = {
-        'appletId': appletId,
+        'appletid': appletId,
         'deployggburl': deployGgbUrl,
         'ggbparams': ggbParams
     };

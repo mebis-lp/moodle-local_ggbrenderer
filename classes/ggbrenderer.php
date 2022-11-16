@@ -40,6 +40,8 @@ use stdClass;
  */
 class ggbrenderer {
 
+    const GGB_SCALE_CONTAINER_CLASS_PREFIX = 'local_ggbrenderer_scalecontainer_';
+
     private array $ggbparams = [];
 
     // TODO make this configurable and self-hostable.
@@ -50,8 +52,10 @@ class ggbrenderer {
 
         $context = new stdClass();
         $context->deployggburl = $this->deployggburl;
-        $context->ggbparams = json_encode($this->get_ggb_params());
         $context->appletid = !empty($appletid) ?: uniqid();
+        $this->prepare_dimensions($appletid);
+        $context->ggbparams = json_encode($this->get_ggb_params());
+
         return $OUTPUT->render_from_template('local_ggbrenderer/ggbcontainer', $context);
     }
 
@@ -79,8 +83,15 @@ class ggbrenderer {
         global $PAGE;
 
         $appletid = !empty($appletid) ?: uniqid();
+        $this->prepare_dimensions($appletid);
         $PAGE->requires->js_call_amd('local_ggbrenderer/ggbtargetrenderer', 'init',
             [$targetselector, $appletid, $this->deployggburl, json_encode($this->get_ggb_params())]);
     }
 
+    private function prepare_dimensions(string $appletid): void {
+        if (!isset($this->ggbparams['width']) && !isset($this->ggbparams['height'])) {
+            $this->ggbparams['scaleContainerClass'] = self::GGB_SCALE_CONTAINER_CLASS_PREFIX . $appletid;
+            $this->ggbparams['autoHeight'] = true;
+        }
+    }
 }

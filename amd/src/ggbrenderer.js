@@ -26,6 +26,9 @@
 
 import * as ggbRendererUtils from 'local_ggbrenderer/ggbrendererutils';
 import Pending from 'core/pending';
+import Log from 'core/log';
+
+let resizeTimeout;
 
 /**
  * Init function for local_ggbrenderer/ggbrenderer module.
@@ -39,8 +42,54 @@ export const init = (DeployObject, appletId) => {
     const params = JSON.parse(document.getElementById(containerId).dataset.ggbparams);
 
     const ggbApplet = new DeployObject(params, true);
+
     ggbRendererUtils.storeApplet(appletId, ggbApplet);
+
+    window.ggbAppletOnLoad = () => {
+        // Set the initial size of the scaling containers so GeoGebra applets scale a first time correctly after loading.
+        resizeScalingContainer();
+        // Unregister old event listeners in case we have multiple GeoGebra questions on one page.
+        // We only need one for the whole page.
+        window.removeEventListener('resize', resizeScalingContainer);
+        window.addEventListener('resize', resizeScalingContainer);
+    };
     window.addEventListener('load', () => ggbApplet.inject(containerId));
 
     pendingPromise.resolve();
+};
+
+/**
+ * Resizes the scaling container to the maximum amount of available space. The GGB applet will scale into it.
+ *
+ * This method should be called if the browser window has been resized.
+ */
+const resizeScalingContainer = () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        document.querySelectorAll('.local_ggbrenderer_scalecontainer').forEach(scalingContainer => {
+            // We set the scaling container's width to a huge amount to make the parent divs take the maximum width.
+            scalingContainer.style.width = '10000px';
+            // After that we determine the minimum width of all parent containers of the scaling container.
+            scalingContainer.style.width = parentMinWidth(scalingContainer) + 'px';
+        });
+        return true;
+    }, 250);
+};
+
+/**
+ * Utility function to determine the minimum width of all parent elements of the given container.
+ *
+ * @param {HTMLElement} container The container of which we want to determine the minimum width of all parent elements
+ * @return {number} minimum width of all parent containers of specified container element in px
+ */
+const parentMinWidth = (container) => {
+    let min = Number.MAX_VALUE;
+    let parent = container.parentElement;
+    while (parent.tagName !== 'BODY') {
+        if (parent.clientWidth < min) {
+            min = parent.clientWidth;
+        }
+        parent = parent.parentElement;
+    }
+    return min;
 };

@@ -38,10 +38,12 @@
             "{\"appName\":\"classic\",\"width\":600,\"height\":500,\"showToolBar\":true,\"showAlgebraInput\":true,\"showMenuBar\":true}"
     }
 }}
-<div id="local_ggbrenderer_container_{{appletid}}"
-     class="local_ggbrenderer_ggbcontainer local_ggbrenderer_ggbcontainer_{{appletid}}"
-     data-ggbparams="{{ggbparams}}"
->
+<div class="local_ggbrenderer_scalecontainer local_ggbrenderer_scalecontainer_{{appletid}}">
+    <div id="local_ggbrenderer_container_{{appletid}}"
+         class="local_ggbrenderer_ggbcontainer"
+         data-ggbparams="{{ggbparams}}"
+    >
+    </div>
 </div>
 {{#js}}
     require(['local_ggbrenderer/ggbrenderer', "{{{deployggburl}}}"], function(ggbrenderer, DeployObject) {
