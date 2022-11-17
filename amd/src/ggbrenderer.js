@@ -39,15 +39,22 @@ let resizeTimeout;
 export const init = (DeployObject, appletId) => {
     const pendingPromise = new Pending('local_ggbrenderer/init');
     const containerId = 'local_ggbrenderer_container_' + appletId;
+    const scalingContainer = document.querySelector('.local_ggbrenderer_scalecontainer_' + appletId);
     const params = JSON.parse(document.getElementById(containerId).dataset.ggbparams);
+
+    if (params.hasOwnProperty('width') && params.hasOwnProperty('heigth')) {
+        scalingContainer.style.overflowX = 'auto';
+        scalingContainer.style.overflowY = 'auto';
+    }
 
     const ggbApplet = new DeployObject(params, true);
 
     ggbRendererUtils.storeApplet(appletId, ggbApplet);
+    // The scaling container starts with a width of 100%. After that we have to set the width to a fixed pixel value for the
+    // scaling container feature of the GGB applet to work properly.
+    scalingContainer.style.width = scalingContainer.getBoundingClientRect().width + 'px';
 
     window.ggbAppletOnLoad = () => {
-        // Set the initial size of the scaling containers so GeoGebra applets scale a first time correctly after loading.
-        resizeScalingContainer();
         // Unregister old event listeners in case we have multiple GeoGebra questions on one page.
         // We only need one for the whole page.
         window.removeEventListener('resize', resizeScalingContainer);
@@ -67,29 +74,10 @@ const resizeScalingContainer = () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
         document.querySelectorAll('.local_ggbrenderer_scalecontainer').forEach(scalingContainer => {
-            // We set the scaling container's width to a huge amount to make the parent divs take the maximum width.
-            scalingContainer.style.width = '10000px';
-            // After that we determine the minimum width of all parent containers of the scaling container.
-            scalingContainer.style.width = parentMinWidth(scalingContainer) + 'px';
+            // We determine the minimum width of all parent containers of the scaling container and use this as width for
+            // the scaling container. This should be a good idea for both very small and very wide applets.
+            scalingContainer.style.width = ggbRendererUtils.getParentsMinWidth(scalingContainer) + 'px';
         });
         return true;
     }, 250);
-};
-
-/**
- * Utility function to determine the minimum width of all parent elements of the given container.
- *
- * @param {HTMLElement} container The container of which we want to determine the minimum width of all parent elements
- * @return {number} minimum width of all parent containers of specified container element in px
- */
-const parentMinWidth = (container) => {
-    let min = Number.MAX_VALUE;
-    let parent = container.parentElement;
-    while (parent.tagName !== 'BODY') {
-        if (parent.clientWidth < min) {
-            min = parent.clientWidth;
-        }
-        parent = parent.parentElement;
-    }
-    return min;
 };

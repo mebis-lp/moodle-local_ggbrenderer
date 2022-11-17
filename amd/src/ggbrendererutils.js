@@ -25,25 +25,62 @@
  */
 
 import Templates from 'core/templates';
-import { exception as displayException } from 'core/notification';
+import {exception as displayException} from 'core/notification';
 
-export const storeApplet = (appletId, applet) => {
+export const storeApplet = (appletId, ggbApplet) => {
     if (!window.ggbApplets) {
         window.ggbApplets = [];
     }
-    window.ggbApplets[appletId] = applet;
+    window.ggbApplets[appletId] = ggbApplet;
 };
 
 /**
- * Getter for accessing the GGB JS API of the GGB applet.
+ * Getter for accessing the GGB applet.
  *
- * @param {string} appletId unique id of the container the
+ * @param {string} appletId unique id of the applet
  * @return {object} The GGBApplet for accessing applet internal functions
  */
-export const getAppletApi = (appletId) => {
+export const getApplet = (appletId) => {
     return window.ggbApplets[appletId];
 };
 
-export const getAppletApis = () => {
+/**
+ * Getter for accessing the GGB applet's API.
+ *
+ * @param {string} appletId unique id of the applet
+ * @return {object|null} The GGB API object of the applet with the specified appletId
+ */
+export const getAppletApi = (appletId) => {
+    const applet = getApplet(appletId);
+    if (!applet) {
+        return null;
+    }
+    return applet.getAppletObject();
+};
+
+/**
+ * Getter for the object containing all GGB applets of a page.
+ *
+ * @return {[]}
+ */
+export const getApplets = () => {
     return window.ggbApplets;
+};
+
+/**
+ * Utility function to determine the minimum width of all parent elements of the given container.
+ *
+ * @param {HTMLElement} container The container of which we want to determine the minimum width of all parent elements
+ * @return {number} minimum width of all parent containers of specified container element in px
+ */
+export const getParentsMinWidth = (container) => {
+    let min = Number.MAX_VALUE;
+    let parent = container.parentElement;
+    while (parent.tagName !== 'BODY') {
+        if (parent.clientWidth < min) {
+            min = parent.clientWidth;
+        }
+        parent = parent.parentElement;
+    }
+    return min;
 };
