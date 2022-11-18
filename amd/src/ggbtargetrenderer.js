@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import * as ggbRendererUtils from 'local_ggbrenderer/ggbrendererutils';
 import Templates from 'core/templates';
 import {exception as displayException} from 'core/notification';
 import Pending from 'core/pending';

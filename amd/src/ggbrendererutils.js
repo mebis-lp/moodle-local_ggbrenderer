@@ -24,8 +24,25 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import Templates from 'core/templates';
-import {exception as displayException} from 'core/notification';
+import * as ggbTargetRenderer from 'local_ggbrenderer/ggbtargetrenderer';
+
+/**
+ * Utility function to render a GGB applet.
+ *
+ * This function renders a GGB applet with given parameters in the HTML element with the given selector.
+ *
+ * @param {string} targetSelector selector of the target HTML element to render the GGB applet to
+ * @param {string} appletId a string which should be used to identify the rendered GGB applet to access its JS API afterwards
+ * @param {string|object} ggbParams json object or json encoded string of params which should be passed to the applet
+ */
+export const renderGgbAppletToTarget = (targetSelector, appletId, ggbParams) => {
+    if (typeof ggbParams === 'object') {
+        ggbParams = JSON.stringify(ggbParams);
+    }
+    // TODO Do not hardcode url, but retrieve it from plugin's configuration.
+    const deployGgbUrl = 'https://www.geogebra.org/apps/deployggb.js';
+    ggbTargetRenderer.init(targetSelector, appletId, deployGgbUrl, ggbParams);
+};
 
 export const storeApplet = (appletId, ggbApplet) => {
     if (!window.ggbApplets) {

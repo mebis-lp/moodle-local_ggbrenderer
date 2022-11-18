@@ -26,7 +26,6 @@
 
 import * as ggbRendererUtils from 'local_ggbrenderer/ggbrendererutils';
 import Pending from 'core/pending';
-import Log from 'core/log';
 
 let resizeTimeout;
 
@@ -53,8 +52,11 @@ export const init = (DeployObject, appletId) => {
     // The scaling container starts with a width of 100%. After that we have to set the width to a fixed pixel value for the
     // scaling container feature of the GGB applet to work properly.
     scalingContainer.style.width = scalingContainer.getBoundingClientRect().width + 'px';
+    const appletLoadedEvent = new CustomEvent('ggbAppletLoaded', {detail: {'appletId': appletId, 'ggbApplet': ggbApplet}});
 
     window.ggbAppletOnLoad = () => {
+        // We emit a custom event to alert users of this plugin that the ggb applet has finished loading.
+        window.dispatchEvent(appletLoadedEvent);
         // Unregister old event listeners in case we have multiple GeoGebra questions on one page.
         // We only need one for the whole page.
         window.removeEventListener('resize', resizeScalingContainer);

@@ -32,7 +32,5 @@ if ($hassiteconfig) {
 
     $ADMIN->add('localplugins', $settings);
 
-    if ($ADMIN->fulltree) {
-        // TODO Add setting for deployggburl, maybe also other settings necessary.
-    }
+    // TODO Add setting for deployggburl, maybe also other settings necessary.
 }

@@ -40,14 +40,22 @@ use stdClass;
  */
 class ggbrenderer {
 
+    /** @var string Prefix for the scale container class. */
     const GGB_SCALE_CONTAINER_CLASS_PREFIX = 'local_ggbrenderer_scalecontainer_';
 
+    /** @var array Associative array containing the parameters which should be passed to the GGB applet. */
     private array $ggbparams = [];
 
     // TODO make this configurable and self-hostable.
+    /** @var string The URL of the GGB deploy bundle. */
     private string $deployggburl = 'https://www.geogebra.org/apps/deployggb.js';
 
-    public function render_ggb_applet(string $appletid = '') {
+    /**
+     * Rendering function for the GGB applet.
+     * @param string $appletid
+     * @return string the rendered HTML code
+     */
+    public function render_ggb_applet(string $appletid = ''): string {
         global $OUTPUT;
 
         $context = new stdClass();
@@ -59,26 +67,13 @@ class ggbrenderer {
         return $OUTPUT->render_from_template('local_ggbrenderer/ggbcontainer', $context);
     }
 
-    public function set_ggb_param(string $key, string $value): void {
-        $this->ggbparams[$key] = $value;
-    }
-
-    public function set_ggb_params(array $ggbparams) {
-        $this->ggbparams = $ggbparams;
-    }
-
-    public function get_ggb_params(): array {
-        return $this->ggbparams;
-    }
-
-    public function set_deployggburl(string $deployggburl) {
-        $this->deployggburl = $deployggburl;
-    }
-
-    public function get_deployggburl(): string {
-        return $this->deployggburl;
-    }
-
+    /**
+     * Function to render the GGB applet to a target HTML element.
+     *
+     * @param string $targetselector Selector of the target element the GGB applet should be rendered to
+     * @param string $appletid ID the applet should be identified with
+     * @return void
+     */
     public function render_ggb_applet_to_target(string $targetselector, string $appletid = ''): void {
         global $PAGE;
 
@@ -88,10 +83,65 @@ class ggbrenderer {
             [$targetselector, $appletid, $this->deployggburl, json_encode($this->get_ggb_params())]);
     }
 
+    /**
+     * Helper function to configure the type of sizing of the applet.
+     *
+     * @param string $appletid ID of the applet
+     * @return void
+     */
     private function prepare_dimensions(string $appletid): void {
         if (!isset($this->ggbparams['width']) && !isset($this->ggbparams['height'])) {
             $this->ggbparams['scaleContainerClass'] = self::GGB_SCALE_CONTAINER_CLASS_PREFIX . $appletid;
             $this->ggbparams['autoHeight'] = true;
         }
+    }
+
+    /**
+     * Setter for the GGB parameters.
+     *
+     * @param string $key GGB parameter key
+     * @param string $value GGB parameter value
+     * @return void
+     */
+    public function set_ggb_param(string $key, string $value): void {
+        $this->ggbparams[$key] = $value;
+    }
+
+    /**
+     * Setter for the whole GGB parameter array.
+     *
+     * @param array $ggbparams Associative array containing all GGB parameters
+     * @return void
+     */
+    public function set_ggb_params(array $ggbparams) {
+        $this->ggbparams = $ggbparams;
+    }
+
+    /**
+     * Getter for the GGB parameters.
+     *
+     * @return array the currently set GGB parameters for rendering the applet.
+     */
+    public function get_ggb_params(): array {
+        return $this->ggbparams;
+    }
+
+    /**
+     * Setter for the deploy GGB url.
+     *
+     * @param string $deployggburl The url of the deployggb.js which should be used to render as string
+     * @return void
+     */
+    public function set_deployggburl(string $deployggburl) {
+        $this->deployggburl = $deployggburl;
+    }
+
+    /**
+     * Getter for the deploy GGB url.
+     *
+     * @return string The url of the deployggb.js which should be used to render as string
+     */
+    public function get_deployggburl(): string {
+        return $this->deployggburl;
     }
 }
