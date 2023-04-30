@@ -46,9 +46,9 @@ export const renderGgbAppletToTarget = (targetSelector, appletId, ggbParams) => 
 
 export const storeApplet = (appletId, ggbApplet) => {
     if (!window.ggbApplets) {
-        window.ggbApplets = [];
+        window.ggbApplets = new Map();
     }
-    window.ggbApplets[appletId] = ggbApplet;
+    window.ggbApplets.set(appletId, ggbApplet);
 };
 
 /**
@@ -58,7 +58,7 @@ export const storeApplet = (appletId, ggbApplet) => {
  * @return {object} The GGBApplet for accessing applet internal functions
  */
 export const getApplet = (appletId) => {
-    return window.ggbApplets[appletId];
+    return window.ggbApplets.get(appletId);
 };
 
 /**
@@ -78,7 +78,7 @@ export const getAppletApi = (appletId) => {
 /**
  * Getter for the object containing all GGB applets of a page.
  *
- * @return {[]}
+ * @return Map a map with the applet id as key and the applet object as value
  */
 export const getApplets = () => {
     return window.ggbApplets;

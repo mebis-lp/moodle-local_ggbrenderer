@@ -38,7 +38,7 @@ import Log from 'core/log';
  * @param {string} ggbParams json encoded string of params which should be passed to the applet
  */
 export const init = (targetSelector, appletId, deployGgbUrl, ggbParams) => {
-    const pendingPromise = new Pending('local_ggbrenderer/init');
+    const pendingPromise = new Pending('local_ggbrenderer/init' + appletId);
 
     if (!targetSelector) {
         Log.error('No target selector specified. GGB applet will not be rendered.');

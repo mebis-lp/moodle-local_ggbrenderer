@@ -36,7 +36,7 @@ let resizeTimeout;
  * @param {string} appletId a string which should be used to identify the rendered GGB applet to access its JS API afterwards
  */
 export const init = (DeployObject, appletId) => {
-    const pendingPromise = new Pending('local_ggbrenderer/init');
+    const pendingPromise = new Pending('local_ggbrenderer/init' + appletId);
     const containerId = 'local_ggbrenderer_container_' + appletId;
     const scalingContainer = document.querySelector('.local_ggbrenderer_scalecontainer_' + appletId);
     const params = JSON.parse(document.getElementById(containerId).dataset.ggbparams);
@@ -45,6 +45,9 @@ export const init = (DeployObject, appletId) => {
         scalingContainer.style.overflowX = 'auto';
         scalingContainer.style.overflowY = 'auto';
     }
+    // We pass our appletId as 'id' attribute to the ggbApplet itself, so we know which applet has been loaded when
+    // the ggbApplet calls the window.ggbAppletOnLoad callback.
+    params.id = appletId;
 
     const ggbApplet = new DeployObject(params, true);
 
@@ -52,11 +55,26 @@ export const init = (DeployObject, appletId) => {
     // The scaling container starts with a width of 100%. After that we have to set the width to a fixed pixel value for the
     // scaling container feature of the GGB applet to work properly.
     scalingContainer.style.width = scalingContainer.getBoundingClientRect().width + 'px';
-    const appletLoadedEvent = new CustomEvent('ggbAppletLoaded', {detail: {'appletId': appletId, 'ggbApplet': ggbApplet}});
 
-    window.ggbAppletOnLoad = () => {
-        // We emit a custom event to alert users of this plugin that the ggb applet has finished loading.
-        window.dispatchEvent(appletLoadedEvent);
+    // This is being called by a GGB applet as soon as it has been loaded. It passes the parameter 'id' if it has been
+    // set when initialized. In our case we passed the applet id, so we now know which applet has been loaded.
+    window.ggbAppletOnLoad = (id) => {
+
+        // For some reason the GGB applet adds numbers to our id, so we have to check all our registered applets if one
+        // of their ids matches the id being passed in by the ggb applet calling this function.
+        const matchingAppletIds = [...ggbRendererUtils.getApplets().keys()].filter(storedId => id.includes(storedId));
+        if (matchingAppletIds.length > 0) {
+            // If everything went correct, exactly one matching applet id should be found.
+            const appletLoadedEvent = new CustomEvent('ggbAppletLoaded',
+                {
+                    detail: {
+                        'appletId': matchingAppletIds[0],
+                        'ggbApplet': ggbApplet
+                    }
+                });
+            // We emit a custom event to alert users of this plugin that the ggb applet has finished loading.
+            window.dispatchEvent(appletLoadedEvent);
+        }
         // Unregister old event listeners in case we have multiple GeoGebra questions on one page.
         // We only need one for the whole page.
         window.removeEventListener('resize', resizeScalingContainer);
