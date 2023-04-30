@@ -1,0 +1,9 @@
+.local_ggbrenderer_scalecontainer {
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.local_ggbrenderer_container {
+    border: 1px solid black;
+}
